@@ -21,7 +21,9 @@ const INITIAL_QUESTS: Quest[] = [
         attribute: 'strength',
         icon: 'Dumbbell',
         completed: false,
-        claimed: false
+        claimed: false,
+        difficulty: 'medium',
+        timeLimit: 60
     },
     {
         id: '2',
@@ -31,7 +33,9 @@ const INITIAL_QUESTS: Quest[] = [
         attribute: 'intelligence',
         icon: 'Brain',
         completed: false,
-        claimed: false
+        claimed: false,
+        difficulty: 'hard',
+        timeLimit: 120
     },
     {
         id: '3',
@@ -41,7 +45,9 @@ const INITIAL_QUESTS: Quest[] = [
         attribute: 'charisma',
         icon: 'Users',
         completed: false,
-        claimed: false
+        claimed: false,
+        difficulty: 'easy',
+        timeLimit: 30
     }
 ];
 
@@ -54,7 +60,9 @@ export function useQuestEngine() {
         strength: 0,
         intelligence: 0,
         charisma: 0,
-        rank: RANKS[0]
+        rank: RANKS[0],
+        gold: 0,
+        gems: 0
     });
 
     // Load data from localStorage
@@ -103,9 +111,13 @@ export function useQuestEngine() {
 
     const claimQuest = useCallback((questId: string) => {
         let leveledUp = false;
+        let bonusGold = 0;
 
         setQuests(prev => prev.map(quest => {
             if (quest.id === questId && quest.completed && !quest.claimed) {
+                // Bônus aleatório de gold
+                bonusGold = Math.floor(Math.random() * 50) + 20;
+
                 setCharacter(prevChar => {
                     const newXp = prevChar.xp + quest.xpReward;
                     const levelUpResult = handleLevelUp(newXp, prevChar.level);
@@ -117,6 +129,7 @@ export function useQuestEngine() {
                     return {
                         ...prevChar,
                         ...levelUpResult,
+                        gold: prevChar.gold + bonusGold,
                         strength: prevChar.strength + (quest.attribute === 'strength' ? 10 : 0),
                         intelligence: prevChar.intelligence + (quest.attribute === 'intelligence' ? 10 : 0),
                         charisma: prevChar.charisma + (quest.attribute === 'charisma' ? 10 : 0),
@@ -128,7 +141,7 @@ export function useQuestEngine() {
             return quest;
         }));
 
-        return leveledUp;
+        return { leveledUp, bonusGold };
     }, [handleLevelUp]);
 
     const completeQuest = useCallback((questId: string) => {
@@ -140,12 +153,17 @@ export function useQuestEngine() {
     }, []);
 
     const resetDailyQuests = useCallback(() => {
-        setQuests(INITIAL_QUESTS.map(quest => ({ ...quest, completed: false, claimed: false })));
+        setQuests(INITIAL_QUESTS.map(quest => ({
+            ...quest,
+            completed: false,
+            claimed: false
+        })));
     }, []);
 
     return {
         quests,
         character,
+        setCharacter,
         claimQuest,
         completeQuest,
         resetDailyQuests

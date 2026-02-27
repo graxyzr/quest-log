@@ -1,74 +1,1146 @@
+/* ============================================================
+   QUEST-LOG — CYBERPUNK RPG GLOBAL STYLES
+   Tema: Dark Neon / Holographic Terminal / RPG Interface
+   ============================================================ */
+  
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   VARIÁVEIS CSS — PALETA CYBERPUNK
+   ============================================================ */
 :root {
-  --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 10, 10, 15;
+  /* Cores neon principais */
+  --neon-blue:    #00ffff;
+  --neon-purple:  #8a2be2;
+  --neon-pink:    #ff00ff;
+  --neon-green:   #00ff9d;
+  --neon-red:     #ff0055;
+  --neon-yellow:  #ffe600;
+  --neon-orange:  #ff6600;
+
+  /* Fundos */
+  --cyber-black:  #03030a;
+  --cyber-dark:   #080818;
+  --cyber-mid:    #0f0f2a;
+  --cyber-panel:  #0a0a1e;
+
+  /* Texto */
+  --foreground-rgb: 220, 220, 255;
+  --background-start-rgb: 3, 3, 10;
   --background-end-rgb: 0, 0, 0;
+
+  /* Tipografia */
+  --font-display: 'Orbitron', sans-serif;
+  --font-mono:    'Share Tech Mono', monospace;
+  --font-ui:      'Rajdhani', sans-serif;
+  --font-body:    'Exo 2', sans-serif;
+
+  /* Glow intensidades */
+  --glow-sm:  0 0 6px;
+  --glow-md:  0 0 14px;
+  --glow-lg:  0 0 28px;
+  --glow-xl:  0 0 60px;
+
+  /* Transições */
+  --transition-fast:   0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-mid:    0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:   0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(to bottom,
-      rgb(var(--background-start-rgb)),
-      rgb(var(--background-end-rgb)));
+  background-color: var(--cyber-black);
+  background-image:
+    /* Ruído cromático sutil */
+    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(138, 43, 226, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0, 255, 255, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 50% 0%, rgba(255, 0, 255, 0.04) 0%, transparent 50%),
+    /* Gradiente de fundo */
+    linear-gradient(180deg, rgb(var(--background-start-rgb)) 0%, rgb(var(--background-end-rgb)) 100%);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
 }
 
-/* Scrollbar personalizada */
+/* ============================================================
+   OVERLAY DE GRID CYBERPUNK (body::after)
+   ============================================================ */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(138, 43, 226, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(138, 43, 226, 0.04) 1px, transparent 1px),
+    linear-gradient(rgba(0, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 50px 50px, 50px 50px, 10px 10px, 10px 10px;
+  pointer-events: none;
+  z-index: 9996;
+  animation: grid-pulse 8s ease-in-out infinite;
+}
+
+/* ============================================================
+   SCANLINES (body::before)
+   ============================================================ */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.25) 2px,
+    rgba(0, 0, 0, 0.25) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.18;
+}
+
+/* ============================================================
+   SCROLLBAR CYBERPUNK
+   ============================================================ */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f0f1a;
-  border: 1px solid #8a2be2;
+  background: var(--cyber-black);
+  border-left: 1px solid rgba(138, 43, 226, 0.3);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #8a2be2, #00ffff);
+  background: linear-gradient(to bottom,
+    var(--neon-purple) 0%,
+    var(--neon-blue) 50%,
+    var(--neon-purple) 100%
+  );
   border-radius: 4px;
+  box-shadow:
+    var(--glow-sm) var(--neon-purple),
+    var(--glow-md) var(--neon-blue);
+  border: 1px solid rgba(0, 255, 255, 0.2);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #9d3bf5, #00ffff);
+  background: linear-gradient(to bottom, var(--neon-pink), var(--neon-purple));
+  box-shadow:
+    var(--glow-md) var(--neon-pink),
+    var(--glow-lg) var(--neon-purple);
 }
 
-/* Animações */
-@keyframes glitch {
+::-webkit-scrollbar-corner {
+  background: var(--cyber-black);
+}
 
+/* ============================================================
+   TIPOGRAFIA RPG
+   ============================================================ */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.font-display  { font-family: var(--font-display); }
+.font-mono-rpg { font-family: var(--font-mono); }
+.font-ui       { font-family: var(--font-ui); }
+.font-body-rpg { font-family: var(--font-body); }
+
+/* ============================================================
+   KEYFRAMES
+   ============================================================ */
+
+/* Scanline varrendo */
+@keyframes scanline-sweep {
+  0%   { transform: translateY(-100vh); opacity: 0; }
+  5%   { opacity: 0.6; }
+  95%  { opacity: 0.6; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+/* Glitch principal */
+@keyframes glitch {
   0%,
+  85%,
   100% {
     transform: translate(0);
+    filter: none;
   }
-
-  20% {
+  86% {
+    transform: translate(-3px, 1px) skewX(-2deg);
+    filter: hue-rotate(90deg) saturate(3);
+  }
+  87% {
+    transform: translate(3px, -1px) skewX(2deg);
+    filter: hue-rotate(-90deg) saturate(3);
+  }
+  88% {
     transform: translate(-2px, 2px);
+    filter: brightness(2) contrast(2);
   }
-
-  40% {
-    transform: translate(-2px, -2px);
+  89% {
+    transform: translate(0);
+    filter: none;
   }
-
-  60% {
-    transform: translate(2px, 2px);
+  91% {
+    transform: translate(4px, 0) skewX(4deg);
+    filter: hue-rotate(180deg);
   }
-
-  80% {
-    transform: translate(2px, -2px);
+  92% {
+    transform: translate(-4px, 0) skewX(-4deg);
+    filter: hue-rotate(-180deg);
+  }
+  93% {
+    transform: translate(0);
   }
 }
 
-.animate-glitch {
-  animation: glitch 1s linear infinite;
+/* Glitch das pseudo-camadas */
+@keyframes glitch-layer-1 {
+  0%   { clip-path: inset(0 0 98% 0); transform: translateX(0); }
+  10%  { clip-path: inset(12% 0 75% 0); transform: translateX(-3px); }
+  20%  { clip-path: inset(35% 0 50% 0); transform: translateX(2px); }
+  30%  { clip-path: inset(55% 0 28% 0); transform: translateX(-2px); }
+  40%  { clip-path: inset(70% 0 10% 0); transform: translateX(4px); }
+  50%  { clip-path: inset(85% 0 0 0);   transform: translateX(-1px); }
+  60%  { clip-path: inset(70% 0 15% 0); transform: translateX(3px); }
+  70%  { clip-path: inset(45% 0 35% 0); transform: translateX(-3px); }
+  80%  { clip-path: inset(20% 0 65% 0); transform: translateX(1px); }
+  90%  { clip-path: inset(5% 0 88% 0);  transform: translateX(-2px); }
+  100% { clip-path: inset(0 0 98% 0);   transform: translateX(0); }
 }
 
-/* Efeitos de neon */
+@keyframes glitch-layer-2 {
+  0%   { clip-path: inset(98% 0 0 0);   transform: translateX(0); }
+  10%  { clip-path: inset(80% 0 8% 0);  transform: translateX(3px); }
+  20%  { clip-path: inset(62% 0 25% 0); transform: translateX(-2px); }
+  30%  { clip-path: inset(40% 0 48% 0); transform: translateX(2px); }
+  40%  { clip-path: inset(20% 0 68% 0); transform: translateX(-4px); }
+  50%  { clip-path: inset(5% 0 85% 0);  transform: translateX(1px); }
+  60%  { clip-path: inset(15% 0 72% 0); transform: translateX(-3px); }
+  70%  { clip-path: inset(38% 0 50% 0); transform: translateX(3px); }
+  80%  { clip-path: inset(60% 0 28% 0); transform: translateX(-1px); }
+  90%  { clip-path: inset(82% 0 5% 0);  transform: translateX(2px); }
+  100% { clip-path: inset(98% 0 0 0);   transform: translateX(0); }
+}
+
+/* Neon pulsando */
+@keyframes pulse-neon {
+  0%, 100% {
+    opacity: 1;
+    filter: brightness(1) drop-shadow(var(--glow-md) currentColor);
+  }
+  50% {
+    opacity: 0.82;
+    filter: brightness(1.4) drop-shadow(var(--glow-xl) currentColor);
+  }
+}
+
+/* Flicker de tubo CRT */
+@keyframes flicker {
+  0%   { opacity: 1; }
+  19%  { opacity: 1; }
+  20%  { opacity: 0.75; }
+  21%  { opacity: 1; }
+  40%  { opacity: 1; }
+  41%  { opacity: 0.4; }
+  42%  { opacity: 1; }
+  43%  { opacity: 0.85; }
+  44%  { opacity: 1; }
+  80%  { opacity: 1; }
+  81%  { opacity: 0.6; }
+  82%  { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+/* Flutuação partículas */
+@keyframes float-particle {
+  0% {
+    transform: translateY(100vh) translateX(0) scale(0);
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.7;
+    transform: translateY(90vh) translateX(10px) scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: translateY(40vh) translateX(-20px) scale(0.8);
+  }
+  95% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateY(-10vh) translateX(30px) scale(0.3);
+    opacity: 0;
+  }
+}
+
+/* Rotação de energia */
+@keyframes spin-energy {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Pulsação de borda */
+@keyframes border-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 5px var(--neon-purple),
+      0 0 10px var(--neon-purple),
+      inset 0 0 5px rgba(138, 43, 226, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 15px var(--neon-blue),
+      0 0 30px var(--neon-blue),
+      0 0 60px rgba(0, 255, 255, 0.2),
+      inset 0 0 15px rgba(0, 255, 255, 0.1);
+  }
+}
+
+/* Shimmer/varredura de luz */
+@keyframes shimmer {
+  0%   { left: -100%; }
+  100% { left: 200%; }
+}
+
+/* Grid pulsando */
+@keyframes grid-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+
+/* Level Up burst */
+@keyframes level-up-burst {
+  0%   { transform: scale(0); opacity: 1; }
+  60%  { transform: scale(1.2); opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* Barra de progresso carregando */
+@keyframes progress-fill {
+  from { width: 0%; }
+  to   { width: var(--progress, 100%); }
+}
+
+/* Piscar cursor terminal */
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* Holograma trêmulo */
+@keyframes hologram-shake {
+  0%,
+  90%,
+  100% { transform: translate(0) skewX(0); filter: none; }
+  91%  { transform: translate(-1px, 0) skewX(-0.5deg); filter: hue-rotate(20deg); }
+  92%  { transform: translate(1px, 0) skewX(0.5deg); filter: hue-rotate(-20deg); }
+  93%  { transform: translate(0); filter: none; }
+  95%  { transform: translate(-2px, 0) skewX(-1deg); filter: brightness(1.5); }
+  96%  { transform: translate(2px, 0) skewX(1deg); filter: brightness(0.8); }
+  97%  { transform: translate(0); filter: none; }
+}
+
+/* Entrada de painel deslizando */
+@keyframes slide-in-panel {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+    clip-path: inset(0 0% 0 0);
+  }
+}
+
+/* Float suave */
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+/* ============================================================
+   CLASSES DE ANIMAÇÃO UTILITÁRIAS
+   ============================================================ */
+.animate-glitch        { animation: glitch 4s ease-in-out infinite; }
+.animate-glitch-fast   { animation: glitch 1.5s ease-in-out infinite; }
+.animate-pulse-neon    { animation: pulse-neon 2.5s ease-in-out infinite; }
+.animate-flicker       { animation: flicker 3s infinite; }
+.animate-hologram      { animation: hologram-shake 6s ease-in-out infinite; }
+.animate-float         { animation: float-gentle 4s ease-in-out infinite; }
+.animate-spin-energy   { animation: spin-energy 8s linear infinite; }
+.animate-slide-panel   { animation: slide-in-panel 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-border-pulse  { animation: border-pulse 2s ease-in-out infinite; }
+
+/* ============================================================
+   EFEITO NEON — TEXTO
+   ============================================================ */
 .neon-text {
-  text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+  text-shadow:
+    0 0 4px currentColor,
+    0 0 10px currentColor,
+    0 0 20px currentColor,
+    0 0 40px currentColor;
 }
 
+.neon-text-blue {
+  color: var(--neon-blue);
+  text-shadow:
+    0 0 4px var(--neon-blue),
+    0 0 12px var(--neon-blue),
+    0 0 25px var(--neon-blue),
+    0 0 50px rgba(0, 255, 255, 0.4);
+}
+
+.neon-text-purple {
+  color: var(--neon-purple);
+  text-shadow:
+    0 0 4px var(--neon-purple),
+    0 0 12px var(--neon-purple),
+    0 0 25px var(--neon-purple),
+    0 0 50px rgba(138, 43, 226, 0.4);
+}
+
+.neon-text-pink {
+  color: var(--neon-pink);
+  text-shadow:
+    0 0 4px var(--neon-pink),
+    0 0 12px var(--neon-pink),
+    0 0 25px var(--neon-pink),
+    0 0 50px rgba(255, 0, 255, 0.4);
+}
+
+.neon-text-green {
+  color: var(--neon-green);
+  text-shadow:
+    0 0 4px var(--neon-green),
+    0 0 12px var(--neon-green),
+    0 0 25px var(--neon-green),
+    0 0 50px rgba(0, 255, 157, 0.4);
+}
+
+/* ============================================================
+   GLITCH TEXT — EFEITO COMPLETO
+   ============================================================ */
+.glitch-text {
+  position: relative;
+  font-family: var(--font-display);
+  animation: glitch 5s ease-in-out infinite;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.glitch-text::before {
+  color: var(--neon-blue);
+  text-shadow: -2px 0 var(--neon-blue);
+  animation: glitch-layer-1 0.6s steps(1) infinite alternate-reverse;
+  mix-blend-mode: screen;
+  opacity: 0.85;
+}
+
+.glitch-text::after {
+  color: var(--neon-pink);
+  text-shadow: 2px 0 var(--neon-pink);
+  animation: glitch-layer-2 0.6s steps(1) infinite alternate-reverse;
+  mix-blend-mode: screen;
+  opacity: 0.85;
+}
+
+/* ============================================================
+   NEON BORDER — BORDAS COM GLOW
+   ============================================================ */
 .neon-border {
-  box-shadow: 0 0 10px currentColor, inset 0 0 10px currentColor;
+  border: 1px solid var(--neon-purple);
+  box-shadow:
+    0 0 8px var(--neon-purple),
+    0 0 16px rgba(138, 43, 226, 0.3),
+    inset 0 0 8px rgba(138, 43, 226, 0.08);
+  transition: box-shadow var(--transition-mid), border-color var(--transition-mid);
+}
+
+.neon-border:hover {
+  border-color: var(--neon-blue);
+  box-shadow:
+    0 0 12px var(--neon-blue),
+    0 0 30px rgba(0, 255, 255, 0.4),
+    inset 0 0 12px rgba(0, 255, 255, 0.08);
+}
+
+.neon-border-blue {
+  border: 1px solid var(--neon-blue);
+  box-shadow: 0 0 8px var(--neon-blue), 0 0 20px rgba(0, 255, 255, 0.25), inset 0 0 8px rgba(0, 255, 255, 0.06);
+}
+
+.neon-border-pink {
+  border: 1px solid var(--neon-pink);
+  box-shadow: 0 0 8px var(--neon-pink), 0 0 20px rgba(255, 0, 255, 0.25), inset 0 0 8px rgba(255, 0, 255, 0.06);
+}
+
+.neon-border-green {
+  border: 1px solid var(--neon-green);
+  box-shadow: 0 0 8px var(--neon-green), 0 0 20px rgba(0, 255, 157, 0.25), inset 0 0 8px rgba(0, 255, 157, 0.06);
+}
+
+/* ============================================================
+   SCANLINE — ELEMENTO COM VARREDURA
+   ============================================================ */
+.scanline {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanline::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(138, 43, 226, 0.06) 40%,
+    rgba(0, 255, 255, 0.08) 50%,
+    rgba(138, 43, 226, 0.06) 60%,
+    transparent 100%
+  );
+  animation: scanline-sweep 6s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ============================================================
+   RPG CARD — CARD COMPLETO
+   ============================================================ */
+.rpg-card {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(8, 8, 24, 0.95) 0%,
+    rgba(12, 12, 30, 0.9) 50%,
+    rgba(8, 8, 24, 0.95) 100%
+  );
+  border: 1px solid rgba(138, 43, 226, 0.5);
+  border-radius: 6px;
+  padding: 1.25rem;
+  overflow: hidden;
+  transition:
+    transform var(--transition-mid),
+    border-color var(--transition-mid),
+    box-shadow var(--transition-mid);
+  box-shadow:
+    0 0 0 1px rgba(138, 43, 226, 0.1),
+    0 4px 20px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(138, 43, 226, 0.1),
+    inset 0 0 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+}
+
+/* Borda brilhante nos cantos — detalhe RPG */
+.rpg-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(138, 43, 226, 0.5),
+    transparent 30%,
+    transparent 70%,
+    rgba(0, 255, 255, 0.4)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Shimmer na varredura de hover */
+.rpg-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(138, 43, 226, 0.12) 50%,
+    rgba(0, 255, 255, 0.08) 55%,
+    transparent 70%
+  );
+  transition: left 0.6s ease;
+  pointer-events: none;
+}
+
+.rpg-card:hover {
+  border-color: rgba(0, 255, 255, 0.6);
+  box-shadow:
+    0 0 15px rgba(138, 43, 226, 0.3),
+    0 0 30px rgba(0, 255, 255, 0.15),
+    0 8px 32px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(0, 255, 255, 0.15),
+    inset 0 0 20px rgba(0, 255, 255, 0.04);
+  transform: translateY(-3px) scale(1.005);
+}
+
+.rpg-card:hover::after {
+  left: 140%;
+}
+
+/* Variante "elite" — borda dupla animada */
+.rpg-card--elite {
+  animation: border-pulse 3s ease-in-out infinite;
+}
+
+/* Variante "legendary" — gradiente dourado */
+.rpg-card--legendary {
+  border-color: var(--neon-yellow);
+  box-shadow:
+    0 0 15px rgba(255, 230, 0, 0.4),
+    0 0 40px rgba(255, 230, 0, 0.15),
+    inset 0 0 20px rgba(255, 230, 0, 0.04);
+}
+
+/* ============================================================
+   MAGIC EFFECT — PULSO MÁGICO
+   ============================================================ */
+.magic-effect {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Halo radial */
+.magic-effect::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    var(--neon-purple),
+    var(--neon-blue),
+    var(--neon-pink),
+    var(--neon-purple)
+  );
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease, opacity 0.4s ease;
+  opacity: 0;
+  filter: blur(20px);
+  z-index: -1;
+}
+
+.magic-effect:hover::before {
+  width: 300px;
+  height: 300px;
+  opacity: 0.18;
+}
+
+/* Anel externo girando */
+.magic-effect::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from calc(var(--angle, 0deg)),
+    transparent 50%,
+    var(--neon-purple) 60%,
+    var(--neon-blue) 70%,
+    transparent 80%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.magic-effect:hover::after {
+  opacity: 1;
+  animation: spin-energy 2s linear infinite;
+}
+
+/* ============================================================
+   BARRAS DE PROGRESSO RPG
+   ============================================================ */
+.rpg-progress {
+  position: relative;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(138, 43, 226, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.rpg-progress::before {
+  content: "";
+  display: block;
+  height: 100%;
+  width: var(--progress, 0%);
+  background: linear-gradient(
+    90deg,
+    var(--neon-purple) 0%,
+    var(--neon-blue) 50%,
+    var(--neon-green) 100%
+  );
+  border-radius: inherit;
+  box-shadow: 0 0 10px var(--neon-blue), 0 0 20px rgba(0, 255, 255, 0.4);
+  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: progress-fill 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Brilho deslizando dentro da barra */
+.rpg-progress::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: shimmer 2s ease infinite;
+}
+
+/* XP bar — variante específica */
+.rpg-progress--xp {
+  height: 12px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(0, 255, 157, 0.4);
+}
+
+.rpg-progress--xp::before {
+  background: linear-gradient(90deg, #00ff9d 0%, #00ffff 60%, #8a2be2 100%);
+  box-shadow: 0 0 12px var(--neon-green), 0 0 25px rgba(0, 255, 157, 0.5);
+}
+
+/* HP bar */
+.rpg-progress--hp::before {
+  background: linear-gradient(90deg, #ff0055, #ff6600);
+  box-shadow: 0 0 10px var(--neon-red);
+}
+
+/* MP bar */
+.rpg-progress--mp::before {
+  background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+  box-shadow: 0 0 10px var(--neon-blue);
+}
+
+/* ============================================================
+   BOTÕES RPG — CRISTAL/ENERGIA
+   ============================================================ */
+.rpg-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6em 1.4em;
+  font-family: var(--font-display);
+  font-size: 0.85em;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--neon-blue);
+  background: rgba(0, 255, 255, 0.04);
+  border: 1px solid var(--neon-blue);
+  border-radius: 4px;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast),
+    box-shadow var(--transition-mid),
+    transform var(--transition-fast);
+  box-shadow:
+    0 0 8px rgba(0, 255, 255, 0.2),
+    inset 0 0 8px rgba(0, 255, 255, 0.03);
+  backdrop-filter: blur(4px);
+  isolation: isolate;
+}
+
+/* Cristal interno */
+.rpg-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    transparent 50%,
+    rgba(0, 255, 255, 0.04) 100%
+  );
+  pointer-events: none;
+}
+
+/* Shimmer do hover */
+.rpg-btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    105deg,
+    transparent,
+    rgba(0, 255, 255, 0.15),
+    transparent
+  );
+  transition: left 0.4s ease;
+}
+
+.rpg-btn:hover {
+  color: var(--cyber-black);
+  background: var(--neon-blue);
+  box-shadow:
+    0 0 15px var(--neon-blue),
+    0 0 40px rgba(0, 255, 255, 0.4),
+    0 0 80px rgba(0, 255, 255, 0.15),
+    inset 0 0 15px rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px) scale(1.02);
+}
+
+.rpg-btn:hover::after {
+  left: 140%;
+}
+
+.rpg-btn:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+/* Variantes */
+.rpg-btn--purple {
+  color: var(--neon-purple);
+  border-color: var(--neon-purple);
+  background: rgba(138, 43, 226, 0.04);
+  box-shadow: 0 0 8px rgba(138, 43, 226, 0.2);
+}
+.rpg-btn--purple:hover {
+  color: #fff;
+  background: var(--neon-purple);
+  box-shadow: 0 0 15px var(--neon-purple), 0 0 40px rgba(138, 43, 226, 0.4);
+}
+
+.rpg-btn--pink {
+  color: var(--neon-pink);
+  border-color: var(--neon-pink);
+  background: rgba(255, 0, 255, 0.04);
+  box-shadow: 0 0 8px rgba(255, 0, 255, 0.2);
+}
+.rpg-btn--pink:hover {
+  color: #fff;
+  background: var(--neon-pink);
+  box-shadow: 0 0 15px var(--neon-pink), 0 0 40px rgba(255, 0, 255, 0.4);
+}
+
+.rpg-btn--danger {
+  color: var(--neon-red);
+  border-color: var(--neon-red);
+  background: rgba(255, 0, 85, 0.04);
+}
+.rpg-btn--danger:hover {
+  color: #fff;
+  background: var(--neon-red);
+  box-shadow: 0 0 15px var(--neon-red), 0 0 40px rgba(255, 0, 85, 0.4);
+}
+
+/* ============================================================
+   TERMINAL / CURSOR
+   ============================================================ */
+.terminal-cursor::after {
+  content: "█";
+  display: inline-block;
+  color: var(--neon-green);
+  animation: cursor-blink 1s step-end infinite;
+  margin-left: 2px;
+}
+
+.terminal-text {
+  font-family: var(--font-mono);
+  color: var(--neon-green);
+  text-shadow: 0 0 8px var(--neon-green);
+}
+
+/* ============================================================
+   HOLOGRAMA
+   ============================================================ */
+.hologram {
+  position: relative;
+  animation: hologram-shake 8s ease-in-out infinite;
+}
+
+/* Linhas horizontais — efeito holo scan */
+.hologram::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0, 255, 255, 0.04) 3px,
+    rgba(0, 255, 255, 0.04) 4px
+  );
+  pointer-events: none;
+  z-index: 2;
+  border-radius: inherit;
+}
+
+/* Brilho azul por cima */
+.hologram::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 255, 255, 0.06) 0%,
+    transparent 30%,
+    transparent 70%,
+    rgba(0, 255, 255, 0.04) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+/* ============================================================
+   LEVEL UP — EFEITO DE NÍVEL
+   ============================================================ */
+.level-up-effect {
+  position: relative;
+}
+
+.level-up-effect::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  border: 2px solid var(--neon-yellow);
+  animation: level-up-burst 0.6s ease-out forwards;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.level-up-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 0.7em;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: var(--neon-yellow);
+  text-shadow: 0 0 8px var(--neon-yellow), 0 0 20px rgba(255, 230, 0, 0.5);
+  border: 1px solid var(--neon-yellow);
+  border-radius: 3px;
+  padding: 0.15em 0.5em;
+  box-shadow: 0 0 10px rgba(255, 230, 0, 0.3);
+  animation: pulse-neon 2s ease-in-out infinite, flicker 5s infinite;
+}
+
+/* ============================================================
+   PARTÍCULAS FLUTUANTES (elementos .particle)
+   ============================================================ */
+.particle {
+  position: fixed;
+  width: 2px;
+  height: 2px;
+  background: var(--neon-blue);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  animation: float-particle 20s linear infinite;
+  box-shadow: 0 0 4px currentColor;
+}
+
+.particle:nth-child(2n)  { background: var(--neon-purple); animation-duration: 25s; animation-delay: -5s; }
+.particle:nth-child(3n)  { background: var(--neon-pink);   animation-duration: 18s; animation-delay: -10s; width: 3px; height: 3px; }
+.particle:nth-child(4n)  { background: var(--neon-green);  animation-duration: 30s; animation-delay: -2s; }
+.particle:nth-child(5n)  { background: var(--neon-yellow); animation-duration: 22s; animation-delay: -15s; width: 1px; height: 1px; }
+
+/* ============================================================
+   BADGE / ETIQUETA RPG
+   ============================================================ */
+.rpg-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  padding: 0.2em 0.6em;
+  font-family: var(--font-mono);
+  font-size: 0.72em;
+  letter-spacing: 0.08em;
+  border-radius: 3px;
+  border: 1px solid currentColor;
+  text-transform: uppercase;
+  transition: box-shadow var(--transition-fast);
+}
+
+.rpg-badge:hover {
+  box-shadow: 0 0 10px currentColor;
+}
+
+/* ============================================================
+   DIVIDER NEON
+   ============================================================ */
+.rpg-divider {
+  position: relative;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--neon-purple) 20%,
+    var(--neon-blue) 50%,
+    var(--neon-purple) 80%,
+    transparent
+  );
+  margin: 1.5rem 0;
+  box-shadow: 0 0 8px rgba(138, 43, 226, 0.4);
+}
+
+.rpg-divider::before,
+.rpg-divider::after {
+  content: "◆";
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.5em;
+  color: var(--neon-purple);
+  text-shadow: 0 0 6px var(--neon-purple);
+  line-height: 1;
+}
+
+.rpg-divider::before { left: 0; }
+.rpg-divider::after  { right: 0; }
+
+/* ============================================================
+   STAT BLOCK — BLOCO DE ATRIBUTO
+   ============================================================ */
+.stat-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(138, 43, 226, 0.3);
+  border-radius: 4px;
+  transition: all var(--transition-mid);
+  cursor: default;
+}
+
+.stat-block:hover {
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.stat-block__label {
+  font-family: var(--font-mono);
+  font-size: 0.65em;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(138, 43, 226, 0.8);
+  margin-bottom: 0.25em;
+}
+
+.stat-block__value {
+  font-family: var(--font-display);
+  font-size: 1.5em;
+  font-weight: 700;
+  color: var(--neon-blue);
+  text-shadow: 0 0 8px var(--neon-blue);
+}
+
+/* ============================================================
+   SELEÇÃO DE TEXTO
+   ============================================================ */
+::selection {
+  background: rgba(138, 43, 226, 0.4);
+  color: var(--neon-blue);
+  text-shadow: none;
+}
+
+/* ============================================================
+   FOCUS VISIBLE — ACESSIBILIDADE
+   ============================================================ */
+:focus-visible {
+  outline: 2px solid var(--neon-blue);
+  outline-offset: 2px;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+/* ============================================================
+   RESPONSIVIDADE
+   ============================================================ */
+@media (max-width: 768px) {
+  .rpg-card {
+    padding: 0.85rem;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .glitch-text::before,
+  .glitch-text::after {
+    display: none; /* Remove camadas no mobile para performance */
+  }
+
+  .animate-glitch {
+    animation: none; /* Evita jank em dispositivos mais fracos */
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

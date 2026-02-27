@@ -9,12 +9,12 @@ import Achievements from '@/src/components/Achievements';
 import Guild from '@/src/components/Guild';
 import MiniGames from '@/src/components/MiniGames';
 import BattlePass from '@/src/components/BattlePass';
-import { 
-  Cpu, 
-  Bot, 
-  Sword, 
-  Brain, 
-  Mic, 
+import {
+  Cpu,
+  Bot,
+  Sword,
+  Brain,
+  Mic,
   ListTodo,
   Dumbbell,
   Users,
@@ -77,13 +77,11 @@ import {
   Plane,
   Rocket,
   Space,
-  Telescope,
   Atom,
   Dna,
   Microscope,
-  Flask,
+  FlaskConical,
   Beaker,
-  TestTube,
   Thermometer,
   Droplet,
   Wind,
@@ -96,56 +94,37 @@ import {
   Sunrise,
   MoonStar,
   Stars,
-  Meteor,
-  Comet,
-  Eclipse,
-  Galaxy,
   Infinity,
   Sigma,
   Pi,
-  Omega,
-  Alpha,
-  Beta,
-  Gamma,
-  Delta,
-  Epsilon,
-  Theta,
-  Lambda,
-  Mu,
-  Nu,
-  Xi,
-  Omicron,
-  Rho,
-  SigmaSquare,
-  Tau,
-  Upsilon,
-  Phi,
-  Chi,
-  Psi,
-  OmegaIcon
+  Activity,
+  Heart,
+  Shield,
+  BookOpen,
+  ChevronLeft
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export default function Home() {
   const { quests, character, setCharacter, claimQuest, completeQuest, resetDailyQuests } = useQuestEngine();
   const { inventory, activeBoosts, useItem, addItem } = useInventory();
-  
+
   const prevLevelRef = useRef(character.level);
   const [showStats, setShowStats] = useState(false);
   const [showShop, setShowShop] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
   const [streak, setStreak] = useState(0);
   const [mounted, setMounted] = useState(false);
-  const [notification, setNotification] = useState<{message: string, type: string} | null>(null);
+  const [notification, setNotification] = useState<{ message: string, type: string } | null>(null);
   const [selectedTab, setSelectedTab] = useState('quests');
   const [showSettings, setShowSettings] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [vibrationEnabled, setVibrationEnabled] = useState(true);
   const [notifications, setNotifications] = useState([
-    { id: 1, message: 'Quest completada!', read: false, time: '5min', icon: <CheckCircle className="w-4 h-4" /> },
-    { id: 2, message: 'Novo item na loja!', read: false, time: '1h', icon: <ShoppingBag className="w-4 h-4" /> },
-    { id: 3, message: 'Achievement desbloqueado', read: true, time: '2h', icon: <Trophy className="w-4 h-4" /> },
+    { id: 1, message: 'Quest completada!', read: false, time: '5min' },
+    { id: 2, message: 'Novo item na loja!', read: false, time: '1h' },
+    { id: 3, message: 'Achievement desbloqueado', read: true, time: '2h' },
   ]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [dailyReward, setDailyReward] = useState({
@@ -176,10 +155,10 @@ export default function Home() {
   const [direction, setDirection] = useState('N');
   const [weather, setWeather] = useState({ temp: 22, condition: 'Nublado', humidity: 65, wind: 12 });
   const [forecast, setForecast] = useState([
-    { day: 'HOJE', temp: 22, icon: <Cloud className="w-4 h-4" /> },
-    { day: 'AMANHÃ', temp: 24, icon: <Sun className="w-4 h-4" /> },
-    { day: 'SÁB', temp: 21, icon: <CloudRain className="w-4 h-4" /> },
-    { day: 'DOM', temp: 23, icon: <Sun className="w-4 h-4" /> },
+    { day: 'HOJE', temp: 22, icon: 'Cloud' },
+    { day: 'AMANHÃ', temp: 24, icon: 'Sun' },
+    { day: 'SÁB', temp: 21, icon: 'CloudRain' },
+    { day: 'DOM', temp: 23, icon: 'Sun' },
   ]);
   const [scientificNotation, setScientificNotation] = useState(false);
   const [mathExpression, setMathExpression] = useState('');
@@ -203,10 +182,11 @@ export default function Home() {
     { name: 'φ (Phi)', value: ((1 + Math.sqrt(5)) / 2).toFixed(10) },
     { name: '√2', value: Math.SQRT2.toFixed(10) },
     { name: '√3', value: Math.sqrt(3).toFixed(10) },
-    { name: 'γ (Euler-Mascheroni)', value: '0.5772156649' },
   ]);
 
-  const xpPercentage = (character.xp / character.xpToNextLevel) * 100;
+  const xpPercentage = character.xpToNextLevel > 0
+    ? (character.xp / character.xpToNextLevel) * 100
+    : 0;
 
   useEffect(() => {
     setMounted(true);
@@ -220,7 +200,7 @@ export default function Home() {
   // Efeito de level up
   useEffect(() => {
     if (!mounted) return;
-    
+
     if (character.level > prevLevelRef.current) {
       // Confetti principal
       confetti({
@@ -248,7 +228,7 @@ export default function Home() {
       }, 200);
 
       showNotification(`LEVEL UP! ${character.level}`, 'success');
-      
+
       if (vibrationEnabled && navigator.vibrate) {
         navigator.vibrate([200, 100, 200]);
       }
@@ -259,19 +239,12 @@ export default function Home() {
   const showNotification = (message: string, type: string) => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 3000);
-    
-    if (soundEnabled) {
-      // Tocar som de notificação
-      const audio = new Audio('/notification.mp3');
-      audio.volume = volume / 100;
-      audio.play().catch(() => {});
-    }
   };
 
   const handleClaimXP = (questId: string) => {
     const result = claimQuest(questId);
-    
-    if (result.bonusGold > 0) {
+
+    if (result && result.bonusGold > 0) {
       showNotification(`+${result.bonusGold} GOLD BÔNUS!`, 'success');
     }
   };
@@ -301,11 +274,11 @@ export default function Home() {
       setDailyReward(prev => ({ ...prev, available: false, claimed: true }));
       setCharacter((prev: any) => ({
         ...prev,
-        gold: prev.gold + 500,
-        gems: prev.gems + 10
+        gold: (prev.gold || 0) + 500,
+        gems: (prev.gems || 0) + 10
       }));
       showNotification('Recompensa diária recebida! +500 Gold, +10 Gems', 'success');
-      
+
       if (vibrationEnabled && navigator.vibrate) {
         navigator.vibrate(100);
       }
@@ -323,7 +296,7 @@ export default function Home() {
   };
 
   const getAttributeIcon = (attribute: string) => {
-    switch(attribute) {
+    switch (attribute) {
       case 'strength': return <Sword className="w-5 h-5 text-cyber-red" />;
       case 'intelligence': return <Brain className="w-5 h-5 text-cyber-blue" />;
       case 'charisma': return <Mic className="w-5 h-5 text-cyber-pink" />;
@@ -338,6 +311,15 @@ export default function Home() {
       Users: Users,
     };
     return icons[iconName] || HelpCircle;
+  };
+
+  const getWeatherIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'Sun': return <Sun className="w-4 h-4 text-cyber-yellow" />;
+      case 'Cloud': return <Cloud className="w-4 h-4 text-gray-400" />;
+      case 'CloudRain': return <CloudRain className="w-4 h-4 text-cyber-blue" />;
+      default: return <Cloud className="w-4 h-4 text-gray-400" />;
+    }
   };
 
   if (!mounted) {
@@ -379,11 +361,10 @@ export default function Home() {
     <main className="min-h-screen bg-cyber-black text-white font-mono">
       {/* Notificações Toast */}
       {notification && (
-        <div className={`fixed top-5 left-1/2 transform -translate-x-1/2 z-50 animate-bounce px-6 py-3 rounded-lg font-bold shadow-lg shadow-cyber-purple/20 flex items-center gap-3 border ${
-          notification.type === 'success' ? 'bg-cyber-green text-black border-cyber-green' :
+        <div className={`fixed top-5 left-1/2 transform -translate-x-1/2 z-50 animate-bounce px-6 py-3 rounded-lg font-bold shadow-lg shadow-cyber-purple/20 flex items-center gap-3 border ${notification.type === 'success' ? 'bg-cyber-green text-black border-cyber-green' :
           notification.type === 'achievement' ? 'bg-cyber-yellow text-black border-cyber-yellow' :
-          'bg-cyber-blue text-black border-cyber-blue'
-        }`}>
+            'bg-cyber-blue text-black border-cyber-blue'
+          }`}>
           {notification.type === 'success' && <Gift className="w-5 h-5 animate-spin" />}
           {notification.type === 'achievement' && <Trophy className="w-5 h-5 animate-bounce" />}
           {notification.type === 'info' && <Sparkles className="w-5 h-5 animate-pulse" />}
@@ -393,7 +374,7 @@ export default function Home() {
 
       {/* Menu de Notificações */}
       {showNotifications && (
-        <div className="fixed top-16 right-4 z-50 w-96 bg-cyber-dark border-2 border-cyber-purple rounded-lg shadow-2xl shadow-cyber-purple/30 animate-slideDown">
+        <div className="fixed top-16 right-4 z-50 w-96 bg-cyber-dark border-2 border-cyber-purple rounded-lg shadow-2xl shadow-cyber-purple/30">
           <div className="p-4 border-b-2 border-cyber-purple/30 bg-gradient-to-r from-cyber-purple/20 to-transparent">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-lg flex items-center gap-2">
@@ -402,8 +383,8 @@ export default function Home() {
                   NOTIFICAÇÕES
                 </span>
               </h3>
-              <button 
-                onClick={() => setShowNotifications(false)} 
+              <button
+                onClick={() => setShowNotifications(false)}
                 className="text-gray-500 hover:text-white hover:scale-110 transition-transform"
               >
                 ✕
@@ -415,18 +396,12 @@ export default function Home() {
           </div>
           <div className="max-h-96 overflow-y-auto">
             {notifications.map((notif) => (
-              <div 
-                key={notif.id} 
-                className={`p-4 border-b border-cyber-purple/20 hover:bg-cyber-purple/10 transition-all cursor-pointer transform hover:scale-105 ${
-                  !notif.read ? 'bg-cyber-purple/5 border-l-4 border-l-cyber-yellow' : ''
-                }`}
+              <div
+                key={notif.id}
+                className={`p-4 border-b border-cyber-purple/20 hover:bg-cyber-purple/10 transition-all cursor-pointer ${!notif.read ? 'bg-cyber-purple/5 border-l-4 border-l-cyber-yellow' : ''
+                  }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className={`p-2 rounded-lg ${
-                    !notif.read ? 'bg-cyber-yellow/20' : 'bg-cyber-purple/10'
-                  }`}>
-                    {notif.icon}
-                  </div>
                   <div className="flex-1">
                     <p className={`text-sm ${!notif.read ? 'font-bold' : ''}`}>{notif.message}</p>
                     <div className="flex items-center gap-2 mt-1">
@@ -456,17 +431,17 @@ export default function Home() {
 
       {/* Menu de Configurações */}
       {showSettings && (
-        <div className="fixed top-16 right-4 z-50 w-80 bg-cyber-dark border-2 border-cyber-purple rounded-lg shadow-2xl shadow-cyber-purple/30 animate-slideDown">
+        <div className="fixed top-16 right-4 z-50 w-80 bg-cyber-dark border-2 border-cyber-purple rounded-lg shadow-2xl shadow-cyber-purple/30">
           <div className="p-4 border-b-2 border-cyber-purple/30 bg-gradient-to-r from-cyber-purple/20 to-transparent">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-lg flex items-center gap-2">
-                <Settings className="w-5 h-5 text-cyber-blue animate-spin-slow" />
+                <Settings className="w-5 h-5 text-cyber-blue" />
                 <span className="bg-gradient-to-r from-cyber-blue to-cyber-purple bg-clip-text text-transparent">
                   CONFIGURAÇÕES
                 </span>
               </h3>
-              <button 
-                onClick={() => setShowSettings(false)} 
+              <button
+                onClick={() => setShowSettings(false)}
                 className="text-gray-500 hover:text-white hover:scale-110 transition-transform"
               >
                 ✕
@@ -482,13 +457,11 @@ export default function Home() {
               </div>
               <button
                 onClick={() => setDarkMode(!darkMode)}
-                className={`relative w-12 h-6 rounded-full transition-colors ${
-                  darkMode ? 'bg-cyber-blue' : 'bg-gray-600'
-                }`}
+                className={`relative w-12 h-6 rounded-full transition-colors ${darkMode ? 'bg-cyber-blue' : 'bg-gray-600'
+                  }`}
               >
-                <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
-                  darkMode ? 'right-1' : 'left-1'
-                }`} />
+                <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${darkMode ? 'right-1' : 'left-1'
+                  }`} />
               </button>
             </div>
 
@@ -500,31 +473,27 @@ export default function Home() {
               </div>
               <button
                 onClick={() => setSoundEnabled(!soundEnabled)}
-                className={`relative w-12 h-6 rounded-full transition-colors ${
-                  soundEnabled ? 'bg-cyber-green' : 'bg-gray-600'
-                }`}
+                className={`relative w-12 h-6 rounded-full transition-colors ${soundEnabled ? 'bg-cyber-green' : 'bg-gray-600'
+                  }`}
               >
-                <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
-                  soundEnabled ? 'right-1' : 'left-1'
-                }`} />
+                <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${soundEnabled ? 'right-1' : 'left-1'
+                  }`} />
               </button>
             </div>
 
             {/* Vibração */}
             <div className="flex items-center justify-between p-3 bg-cyber-black/50 rounded-lg border border-cyber-purple/30">
               <div className="flex items-center gap-2">
-                <Radio className={`w-4 h-4 ${vibrationEnabled ? 'text-cyber-purple' : 'text-gray-600'}`} />
+                <Activity className={`w-4 h-4 ${vibrationEnabled ? 'text-cyber-purple' : 'text-gray-600'}`} />
                 <span className="text-sm">VIBRAÇÃO</span>
               </div>
               <button
                 onClick={() => setVibrationEnabled(!vibrationEnabled)}
-                className={`relative w-12 h-6 rounded-full transition-colors ${
-                  vibrationEnabled ? 'bg-cyber-purple' : 'bg-gray-600'
-                }`}
+                className={`relative w-12 h-6 rounded-full transition-colors ${vibrationEnabled ? 'bg-cyber-purple' : 'bg-gray-600'
+                  }`}
               >
-                <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
-                  vibrationEnabled ? 'right-1' : 'left-1'
-                }`} />
+                <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${vibrationEnabled ? 'right-1' : 'left-1'
+                  }`} />
               </button>
             </div>
 
@@ -574,7 +543,7 @@ export default function Home() {
       {/* Menu de Dispositivos */}
       {showDevice && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-          <div className="bg-cyber-dark border-2 border-cyber-purple rounded-lg w-96 p-6 animate-scaleIn">
+          <div className="bg-cyber-dark border-2 border-cyber-purple rounded-lg w-96 p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold flex items-center gap-2">
                 <Bluetooth className="w-5 h-5 text-cyber-blue animate-pulse" />
@@ -582,8 +551,8 @@ export default function Home() {
                   DISPOSITIVOS
                 </span>
               </h3>
-              <button 
-                onClick={() => setShowDevice(false)} 
+              <button
+                onClick={() => setShowDevice(false)}
                 className="text-gray-500 hover:text-white text-xl"
               >
                 ✕
@@ -601,10 +570,9 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="mt-2 h-2 bg-cyber-black rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full rounded-full ${
-                      batteryLevel > 50 ? 'bg-cyber-green' : batteryLevel > 20 ? 'bg-cyber-yellow' : 'bg-cyber-red'
-                    }`}
+                  <div
+                    className={`h-full rounded-full ${batteryLevel > 50 ? 'bg-cyber-green' : batteryLevel > 20 ? 'bg-cyber-yellow' : 'bg-cyber-red'
+                      }`}
                     style={{ width: `${batteryLevel}%` }}
                   />
                 </div>
@@ -642,11 +610,10 @@ export default function Home() {
                             setConnectedDevices(prev => [...prev, device]);
                           }
                         }}
-                        className={`px-2 py-1 rounded text-xs ${
-                          connectedDevices.includes(device)
-                            ? 'bg-cyber-green text-black'
-                            : 'bg-cyber-purple/20 text-cyber-purple'
-                        }`}
+                        className={`px-2 py-1 rounded text-xs ${connectedDevices.includes(device)
+                          ? 'bg-cyber-green text-black'
+                          : 'bg-cyber-purple/20 text-cyber-purple'
+                          }`}
                       >
                         {connectedDevices.includes(device) ? 'CONECTADO' : 'CONECTAR'}
                       </button>
@@ -669,7 +636,7 @@ export default function Home() {
       {/* Menu de Rádio/Música */}
       {showRadio && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-          <div className="bg-cyber-dark border-2 border-cyber-purple rounded-lg w-96 p-6 animate-scaleIn">
+          <div className="bg-cyber-dark border-2 border-cyber-purple rounded-lg w-96 p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold flex items-center gap-2">
                 <Radio className="w-5 h-5 text-cyber-pink animate-pulse" />
@@ -677,8 +644,8 @@ export default function Home() {
                   CYBER RADIO
                 </span>
               </h3>
-              <button 
-                onClick={() => setShowRadio(false)} 
+              <button
+                onClick={() => setShowRadio(false)}
                 className="text-gray-500 hover:text-white text-xl"
               >
                 ✕
@@ -696,17 +663,17 @@ export default function Home() {
               </div>
               <p className="text-center font-bold">{currentSong.title}</p>
               <p className="text-center text-sm text-gray-400 mb-3">{currentSong.artist}</p>
-              
+
               {/* Controles */}
               <div className="flex items-center justify-center gap-4">
                 <button className="p-2 hover:bg-cyber-purple/20 rounded-full transition-colors">
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                <button 
+                <button
                   onClick={() => setCurrentSong(prev => ({ ...prev, playing: !prev.playing }))}
                   className="w-12 h-12 rounded-full bg-gradient-to-r from-cyber-green to-cyber-blue flex items-center justify-center hover:scale-110 transition-transform"
                 >
-                  {currentSong.playing ? <Square className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                  {currentSong.playing ? '⏸' : '▶'}
                 </button>
                 <button className="p-2 hover:bg-cyber-purple/20 rounded-full transition-colors">
                   <ChevronRight className="w-5 h-5" />
@@ -751,7 +718,7 @@ export default function Home() {
       {/* Menu de Mapa/Navegação */}
       {showMap && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-          <div className="bg-cyber-dark border-2 border-cyber-purple rounded-lg w-[600px] p-6 animate-scaleIn">
+          <div className="bg-cyber-dark border-2 border-cyber-purple rounded-lg w-[600px] p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold flex items-center gap-2">
                 <Map className="w-5 h-5 text-cyber-green animate-pulse" />
@@ -759,8 +726,8 @@ export default function Home() {
                   CYBER MAP
                 </span>
               </h3>
-              <button 
-                onClick={() => setShowMap(false)} 
+              <button
+                onClick={() => setShowMap(false)}
                 className="text-gray-500 hover:text-white text-xl"
               >
                 ✕
@@ -769,8 +736,8 @@ export default function Home() {
 
             {/* Mapa simulado */}
             <div className="relative h-64 bg-cyber-black/50 rounded-lg mb-4 border border-cyber-purple/30 overflow-hidden">
-              <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M0 0h60v60H0z" fill="none"/%3E%3Cpath d="M30 0v60M0 30h60" stroke="%238a2be2" stroke-width="0.5" opacity="0.2"/%3E%3C/svg%3E')] opacity-30" />
-              
+              <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h60v60H0z\' fill=\'none\'/%3E%3Cpath d=\'M30 0v60M0 30h60\' stroke=\'%238a2be2\' stroke-width=\'0.5\' opacity=\'0.2\'/%3E%3C/svg%3E\')] opacity-30" />
+
               {/* Marcador de posição */}
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <div className="relative">
@@ -842,7 +809,7 @@ export default function Home() {
       {/* Menu de Ciência */}
       {showScience && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-          <div className="bg-cyber-dark border-2 border-cyber-purple rounded-lg w-[600px] p-6 animate-scaleIn max-h-[80vh] overflow-y-auto">
+          <div className="bg-cyber-dark border-2 border-cyber-purple rounded-lg w-[600px] p-6 max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4 sticky top-0 bg-cyber-dark/90 p-2 backdrop-blur-sm z-10">
               <h3 className="text-xl font-bold flex items-center gap-2">
                 <Atom className="w-5 h-5 text-cyber-yellow animate-spin-slow" />
@@ -850,8 +817,8 @@ export default function Home() {
                   LABORATÓRIO
                 </span>
               </h3>
-              <button 
-                onClick={() => setShowScience(false)} 
+              <button
+                onClick={() => setShowScience(false)}
                 className="text-gray-500 hover:text-white text-xl"
               >
                 ✕
@@ -866,11 +833,10 @@ export default function Home() {
                   <button
                     key={element.symbol}
                     onClick={() => setSelectedElement(element.name)}
-                    className={`p-2 text-center rounded border transition-all ${
-                      selectedElement === element.name
-                        ? 'border-cyber-yellow bg-cyber-yellow/10 scale-110'
-                        : 'border-cyber-purple/30 hover:border-cyber-purple'
-                    }`}
+                    className={`p-2 text-center rounded border transition-all ${selectedElement === element.name
+                      ? 'border-cyber-yellow bg-cyber-yellow/10 scale-110'
+                      : 'border-cyber-purple/30 hover:border-cyber-purple'
+                      }`}
                   >
                     <p className="font-bold text-sm">{element.symbol}</p>
                     <p className="text-[10px] text-gray-400">{element.mass.toFixed(2)}</p>
@@ -910,7 +876,7 @@ export default function Home() {
                   <p className="text-xs text-gray-400">Analisar amostras</p>
                 </button>
                 <button className="p-3 bg-cyber-black/50 hover:bg-cyber-purple/20 rounded border border-cyber-purple/30 text-left">
-                  <TestTube className="w-5 h-5 text-cyber-green mb-1" />
+                  <FlaskConical className="w-5 h-5 text-cyber-green mb-1" />
                   <p className="text-sm">Química</p>
                   <p className="text-xs text-gray-400">Reações</p>
                 </button>
@@ -920,7 +886,7 @@ export default function Home() {
                   <p className="text-xs text-gray-400">Sequenciamento</p>
                 </button>
                 <button className="p-3 bg-cyber-black/50 hover:bg-cyber-purple/20 rounded border border-cyber-purple/30 text-left">
-                  <Flask className="w-5 h-5 text-cyber-yellow mb-1" />
+                  <Beaker className="w-5 h-5 text-cyber-yellow mb-1" />
                   <p className="text-sm">Bioquímica</p>
                   <p className="text-xs text-gray-400">Síntese</p>
                 </button>
@@ -940,7 +906,7 @@ export default function Home() {
       {/* Menu de Matemática */}
       {showMath && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-          <div className="bg-cyber-dark border-2 border-cyber-purple rounded-lg w-[500px] p-6 animate-scaleIn">
+          <div className="bg-cyber-dark border-2 border-cyber-purple rounded-lg w-[500px] p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold flex items-center gap-2">
                 <Infinity className="w-5 h-5 text-cyber-blue animate-pulse" />
@@ -948,8 +914,8 @@ export default function Home() {
                   CALCULADORA CIENTÍFICA
                 </span>
               </h3>
-              <button 
-                onClick={() => setShowMath(false)} 
+              <button
+                onClick={() => setShowMath(false)}
                 className="text-gray-500 hover:text-white text-xl"
               >
                 ✕
@@ -1114,17 +1080,17 @@ export default function Home() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-cyber-dark/30 border-2 border-cyber-yellow/30 rounded-lg p-4 hover:border-cyber-yellow transition-all cursor-pointer transform hover:scale-105">
             <div className="flex items-center gap-2">
-              <Coins className="w-6 h-6 text-cyber-yellow animate-spin-slow" />
+              <Coins className="w-6 h-6 text-cyber-yellow" />
               <div>
                 <p className="text-xs text-cyber-yellow/60">GOLD</p>
                 <p className="text-xl font-bold text-cyber-yellow">{character.gold}</p>
               </div>
             </div>
           </div>
-          
+
           <div className="bg-cyber-dark/30 border-2 border-cyber-purple/30 rounded-lg p-4 hover:border-cyber-purple transition-all cursor-pointer transform hover:scale-105">
             <div className="flex items-center gap-2">
               <Gem className="w-6 h-6 text-cyber-purple animate-pulse" />
@@ -1134,7 +1100,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-cyber-dark/30 border-2 border-cyber-red/30 rounded-lg p-4 hover:border-cyber-red transition-all cursor-pointer transform hover:scale-105">
             <div className="flex items-center gap-2">
               <Flame className="w-6 h-6 text-cyber-red animate-bounce" />
@@ -1144,10 +1110,10 @@ export default function Home() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-cyber-dark/30 border-2 border-cyber-green/30 rounded-lg p-4 hover:border-cyber-green transition-all cursor-pointer transform hover:scale-105">
             <div className="flex items-center gap-2">
-              <Target className="w-6 h-6 text-cyber-green animate-ping" />
+              <Target className="w-6 h-6 text-cyber-green" />
               <div>
                 <p className="text-xs text-cyber-green/60">QUESTS</p>
                 <p className="text-xl font-bold text-cyber-green">{quests.filter(q => q.completed).length}/3</p>
@@ -1159,7 +1125,7 @@ export default function Home() {
         {/* Barra de XP com efeitos */}
         <div className="bg-cyber-dark/30 border-2 border-cyber-purple/30 rounded-lg p-4 mb-6 relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-r from-cyber-purple/10 via-transparent to-cyber-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          
+
           <div className="flex justify-between items-center mb-2 relative">
             <div className="flex items-center gap-2">
               <Zap className="w-5 h-5 text-cyber-yellow animate-pulse" />
@@ -1170,15 +1136,15 @@ export default function Home() {
               <ChevronRight className="w-4 h-4 text-cyber-blue group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
-          
+
           <div className="h-5 bg-cyber-black border-2 border-cyber-purple/30 rounded-full overflow-hidden relative">
-            <div 
+            <div
               className="h-full bg-gradient-to-r from-cyber-blue via-cyber-purple to-cyber-pink rounded-full transition-all duration-500 relative"
               style={{ width: `${xpPercentage}%` }}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse" />
             </div>
-            
+
             {/* Marcadores de nível */}
             {[25, 50, 75].map((mark) => (
               <div
@@ -1198,125 +1164,117 @@ export default function Home() {
               setShowShop(false);
               setShowInventory(false);
             }}
-            className={`px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 whitespace-nowrap transform hover:scale-105 ${
-              selectedTab === 'quests' && !showShop && !showInventory
-                ? 'bg-gradient-to-r from-cyber-blue to-cyber-purple text-black shadow-lg shadow-cyber-purple/30 border-2 border-white/20'
-                : 'bg-cyber-dark border-2 border-cyber-purple/30 text-cyber-purple hover:bg-cyber-purple/20'
-            }`}
+            className={`px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 whitespace-nowrap transform hover:scale-105 ${selectedTab === 'quests' && !showShop && !showInventory
+              ? 'bg-gradient-to-r from-cyber-blue to-cyber-purple text-black shadow-lg shadow-cyber-purple/30 border-2 border-white/20'
+              : 'bg-cyber-dark border-2 border-cyber-purple/30 text-cyber-purple hover:bg-cyber-purple/20'
+              }`}
           >
-            <ListTodo className={`w-4 h-4 ${selectedTab === 'quests' ? 'animate-spin' : ''}`} />
+            <ListTodo className={`w-4 h-4`} />
             QUESTS
           </button>
-          
+
           <button
             onClick={() => {
               setShowShop(true);
               setShowInventory(false);
               setSelectedTab('shop');
             }}
-            className={`px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 whitespace-nowrap transform hover:scale-105 ${
-              showShop
-                ? 'bg-gradient-to-r from-cyber-yellow to-cyber-orange text-black shadow-lg shadow-cyber-yellow/30 border-2 border-white/20'
-                : 'bg-cyber-dark border-2 border-cyber-yellow/30 text-cyber-yellow hover:bg-cyber-yellow/20'
-            }`}
+            className={`px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 whitespace-nowrap transform hover:scale-105 ${showShop
+              ? 'bg-gradient-to-r from-cyber-yellow to-cyber-orange text-black shadow-lg shadow-cyber-yellow/30 border-2 border-white/20'
+              : 'bg-cyber-dark border-2 border-cyber-yellow/30 text-cyber-yellow hover:bg-cyber-yellow/20'
+              }`}
           >
-            <ShoppingBag className={`w-4 h-4 ${showShop ? 'animate-bounce' : ''}`} />
+            <ShoppingBag className={`w-4 h-4`} />
             SHOP
           </button>
-          
+
           <button
             onClick={() => {
               setShowInventory(true);
               setShowShop(false);
               setSelectedTab('inventory');
             }}
-            className={`px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 whitespace-nowrap transform hover:scale-105 ${
-              showInventory
-                ? 'bg-gradient-to-r from-cyber-green to-cyber-blue text-black shadow-lg shadow-cyber-green/30 border-2 border-white/20'
-                : 'bg-cyber-dark border-2 border-cyber-green/30 text-cyber-green hover:bg-cyber-green/20'
-            }`}
+            className={`px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 whitespace-nowrap transform hover:scale-105 ${showInventory
+              ? 'bg-gradient-to-r from-cyber-green to-cyber-blue text-black shadow-lg shadow-cyber-green/30 border-2 border-white/20'
+              : 'bg-cyber-dark border-2 border-cyber-green/30 text-cyber-green hover:bg-cyber-green/20'
+              }`}
           >
-            <Package className={`w-4 h-4 ${showInventory ? 'animate-pulse' : ''}`} />
+            <Package className={`w-4 h-4`} />
             INVENTORY ({inventory.length})
           </button>
-          
+
           <button
             onClick={() => {
               setSelectedTab('achievements');
               setShowShop(false);
               setShowInventory(false);
             }}
-            className={`px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 whitespace-nowrap transform hover:scale-105 ${
-              selectedTab === 'achievements'
-                ? 'bg-gradient-to-r from-cyber-yellow to-cyber-pink text-black shadow-lg shadow-cyber-yellow/30 border-2 border-white/20'
-                : 'bg-cyber-dark border-2 border-cyber-yellow/30 text-cyber-yellow hover:bg-cyber-yellow/20'
-            }`}
+            className={`px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 whitespace-nowrap transform hover:scale-105 ${selectedTab === 'achievements'
+              ? 'bg-gradient-to-r from-cyber-yellow to-cyber-pink text-black shadow-lg shadow-cyber-yellow/30 border-2 border-white/20'
+              : 'bg-cyber-dark border-2 border-cyber-yellow/30 text-cyber-yellow hover:bg-cyber-yellow/20'
+              }`}
           >
-            <Trophy className={`w-4 h-4 ${selectedTab === 'achievements' ? 'animate-bounce' : ''}`} />
+            <Trophy className={`w-4 h-4`} />
             ACHIEVEMENTS
           </button>
-          
+
           <button
             onClick={() => {
               setSelectedTab('guild');
               setShowShop(false);
               setShowInventory(false);
             }}
-            className={`px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 whitespace-nowrap transform hover:scale-105 ${
-              selectedTab === 'guild'
-                ? 'bg-gradient-to-r from-cyber-purple to-cyber-pink text-black shadow-lg shadow-cyber-purple/30 border-2 border-white/20'
-                : 'bg-cyber-dark border-2 border-cyber-purple/30 text-cyber-purple hover:bg-cyber-purple/20'
-            }`}
+            className={`px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 whitespace-nowrap transform hover:scale-105 ${selectedTab === 'guild'
+              ? 'bg-gradient-to-r from-cyber-purple to-cyber-pink text-black shadow-lg shadow-cyber-purple/30 border-2 border-white/20'
+              : 'bg-cyber-dark border-2 border-cyber-purple/30 text-cyber-purple hover:bg-cyber-purple/20'
+              }`}
           >
-            <Users2 className={`w-4 h-4 ${selectedTab === 'guild' ? 'animate-pulse' : ''}`} />
+            <Users2 className={`w-4 h-4`} />
             GUILD
           </button>
-          
+
           <button
             onClick={() => {
               setSelectedTab('minigames');
               setShowShop(false);
               setShowInventory(false);
             }}
-            className={`px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 whitespace-nowrap transform hover:scale-105 ${
-              selectedTab === 'minigames'
-                ? 'bg-gradient-to-r from-cyber-green to-cyber-blue text-black shadow-lg shadow-cyber-green/30 border-2 border-white/20'
-                : 'bg-cyber-dark border-2 border-cyber-green/30 text-cyber-green hover:bg-cyber-green/20'
-            }`}
+            className={`px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 whitespace-nowrap transform hover:scale-105 ${selectedTab === 'minigames'
+              ? 'bg-gradient-to-r from-cyber-green to-cyber-blue text-black shadow-lg shadow-cyber-green/30 border-2 border-white/20'
+              : 'bg-cyber-dark border-2 border-cyber-green/30 text-cyber-green hover:bg-cyber-green/20'
+              }`}
           >
-            <Gamepad2 className={`w-4 h-4 ${selectedTab === 'minigames' ? 'animate-spin' : ''}`} />
+            <Gamepad2 className={`w-4 h-4`} />
             MINI GAMES
           </button>
-          
+
           <button
             onClick={() => {
               setSelectedTab('battlepass');
               setShowShop(false);
               setShowInventory(false);
             }}
-            className={`px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 whitespace-nowrap transform hover:scale-105 ${
-              selectedTab === 'battlepass'
-                ? 'bg-gradient-to-r from-cyber-yellow to-cyber-pink text-black shadow-lg shadow-cyber-yellow/30 border-2 border-white/20'
-                : 'bg-cyber-dark border-2 border-cyber-yellow/30 text-cyber-yellow hover:bg-cyber-yellow/20'
-            }`}
+            className={`px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 whitespace-nowrap transform hover:scale-105 ${selectedTab === 'battlepass'
+              ? 'bg-gradient-to-r from-cyber-yellow to-cyber-pink text-black shadow-lg shadow-cyber-yellow/30 border-2 border-white/20'
+              : 'bg-cyber-dark border-2 border-cyber-yellow/30 text-cyber-yellow hover:bg-cyber-yellow/20'
+              }`}
           >
-            <ScrollText className={`w-4 h-4 ${selectedTab === 'battlepass' ? 'animate-pulse' : ''}`} />
+            <ScrollText className={`w-4 h-4`} />
             BATTLE PASS
           </button>
-          
+
           <button
             onClick={() => {
               setSelectedTab('stats');
               setShowShop(false);
               setShowInventory(false);
             }}
-            className={`px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 whitespace-nowrap transform hover:scale-105 ${
-              selectedTab === 'stats'
-                ? 'bg-gradient-to-r from-cyber-blue to-cyber-cyan text-black shadow-lg shadow-cyber-blue/30 border-2 border-white/20'
-                : 'bg-cyber-dark border-2 border-cyber-blue/30 text-cyber-blue hover:bg-cyber-blue/20'
-            }`}
+            className={`px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 whitespace-nowrap transform hover:scale-105 ${selectedTab === 'stats'
+              ? 'bg-gradient-to-r from-cyber-blue to-cyber-cyan text-black shadow-lg shadow-cyber-blue/30 border-2 border-white/20'
+              : 'bg-cyber-dark border-2 border-cyber-blue/30 text-cyber-blue hover:bg-cyber-blue/20'
+              }`}
           >
-            <BarChart3 className={`w-4 h-4 ${selectedTab === 'stats' ? 'animate-bounce' : ''}`} />
+            <BarChart3 className={`w-4 h-4`} />
             STATS
           </button>
         </div>
@@ -1358,14 +1316,14 @@ export default function Home() {
                     <span className="text-cyber-red font-bold text-lg">{character.strength}</span>
                   </div>
                   <div className="h-2 bg-cyber-black rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-gradient-to-r from-cyber-red to-cyber-orange rounded-full transition-all duration-500 group-hover:animate-pulse"
-                      style={{ width: `${(character.strength % 100)}%` }} 
+                      style={{ width: `${(character.strength % 100)}%` }}
                     />
                   </div>
                   <p className="text-xs text-cyber-red/60 mt-1">Próximo nível: {100 - (character.strength % 100)}</p>
                 </div>
-                
+
                 <div className="p-3 border-2 border-cyber-blue/30 rounded-lg hover:border-cyber-blue/60 transition-all group">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
@@ -1375,14 +1333,14 @@ export default function Home() {
                     <span className="text-cyber-blue font-bold text-lg">{character.intelligence}</span>
                   </div>
                   <div className="h-2 bg-cyber-black rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-gradient-to-r from-cyber-blue to-cyber-cyan rounded-full transition-all duration-500"
-                      style={{ width: `${(character.intelligence % 100)}%` }} 
+                      style={{ width: `${(character.intelligence % 100)}%` }}
                     />
                   </div>
                   <p className="text-xs text-cyber-blue/60 mt-1">Próximo nível: {100 - (character.intelligence % 100)}</p>
                 </div>
-                
+
                 <div className="p-3 border-2 border-cyber-pink/30 rounded-lg hover:border-cyber-pink/60 transition-all group">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
@@ -1392,9 +1350,9 @@ export default function Home() {
                     <span className="text-cyber-pink font-bold text-lg">{character.charisma}</span>
                   </div>
                   <div className="h-2 bg-cyber-black rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-gradient-to-r from-cyber-pink to-cyber-purple rounded-full transition-all duration-500"
-                      style={{ width: `${(character.charisma % 100)}%` }} 
+                      style={{ width: `${(character.charisma % 100)}%` }}
                     />
                   </div>
                   <p className="text-xs text-cyber-pink/60 mt-1">Próximo nível: {100 - (character.charisma % 100)}</p>
@@ -1452,7 +1410,9 @@ export default function Home() {
                   <div className="flex justify-between">
                     <span className="text-cyber-blue/60">Taxa de Conclusão:</span>
                     <span className="text-cyber-yellow font-bold">
-                      {((quests.filter(q => q.claimed).length / 30) * 100).toFixed(1)}%
+                      {quests.length > 0
+                        ? ((quests.filter(q => q.claimed).length / quests.length) * 100).toFixed(1)
+                        : '0'}%
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -1481,7 +1441,7 @@ export default function Home() {
                     </span>
                   </h2>
                   <div className="flex items-center gap-2 text-sm bg-cyber-black/50 px-3 py-1 rounded-lg border border-cyber-yellow/30">
-                    <Clock className="w-4 h-4 text-cyber-yellow animate-spin-slow" />
+                    <Clock className="w-4 h-4 text-cyber-yellow" />
                     <span className="text-cyber-yellow">RESET EM 12H</span>
                   </div>
                 </div>
@@ -1489,28 +1449,28 @@ export default function Home() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {quests.map((quest) => {
                     const IconComponent = getIconComponent(quest.icon);
-                    
+
                     return (
                       <div
                         key={quest.id}
                         className={`
                           relative group overflow-hidden rounded-lg border-2 transition-all duration-300 transform hover:scale-105
-                          ${quest.completed 
-                            ? 'border-cyber-green/50 bg-gradient-to-r from-cyber-green/5 to-transparent' 
+                          ${quest.completed
+                            ? 'border-cyber-green/50 bg-gradient-to-r from-cyber-green/5 to-transparent'
                             : 'border-cyber-purple/30 bg-cyber-black/50 hover:border-cyber-purple/60'
                           }
                         `}
                       >
                         {/* Efeito de brilho no hover */}
                         <div className="absolute inset-0 bg-gradient-to-r from-cyber-purple/10 via-transparent to-cyber-blue/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                        
+
                         <div className="p-4 relative">
                           <div className="flex justify-between items-start mb-3">
                             <div className={`
                               p-2 rounded-lg border-2 
-                              ${quest.attribute === 'strength' ? 'border-cyber-red text-cyber-red bg-cyber-red/5 group-hover:animate-bounce' : ''}
-                              ${quest.attribute === 'intelligence' ? 'border-cyber-blue text-cyber-blue bg-cyber-blue/5 group-hover:animate-pulse' : ''}
-                              ${quest.attribute === 'charisma' ? 'border-cyber-pink text-cyber-pink bg-cyber-pink/5 group-hover:animate-ping' : ''}
+                              ${quest.attribute === 'strength' ? 'border-cyber-red text-cyber-red bg-cyber-red/5' : ''}
+                              ${quest.attribute === 'intelligence' ? 'border-cyber-blue text-cyber-blue bg-cyber-blue/5' : ''}
+                              ${quest.attribute === 'charisma' ? 'border-cyber-pink text-cyber-pink bg-cyber-pink/5' : ''}
                             `}>
                               <IconComponent className="w-6 h-6" />
                             </div>
@@ -1527,11 +1487,10 @@ export default function Home() {
 
                           {/* Dificuldade */}
                           <div className="flex items-center gap-2 mb-3">
-                            <span className={`text-xs px-2 py-0.5 rounded border ${
-                              quest.difficulty === 'easy' ? 'bg-cyber-green/20 text-cyber-green border-cyber-green/30' :
+                            <span className={`text-xs px-2 py-0.5 rounded border ${quest.difficulty === 'easy' ? 'bg-cyber-green/20 text-cyber-green border-cyber-green/30' :
                               quest.difficulty === 'medium' ? 'bg-cyber-yellow/20 text-cyber-yellow border-cyber-yellow/30' :
-                              'bg-cyber-red/20 text-cyber-red border-cyber-red/30'
-                            }`}>
+                                'bg-cyber-red/20 text-cyber-red border-cyber-red/30'
+                              }`}>
                               {quest.difficulty.toUpperCase()}
                             </span>
                             {quest.timeLimit && (
@@ -1556,7 +1515,7 @@ export default function Home() {
                             >
                               {quest.completed ? '✓ COMPLETED' : 'COMPLETE'}
                             </button>
-                            
+
                             <button
                               onClick={() => handleClaimXP(quest.id)}
                               disabled={!quest.completed || quest.claimed}
@@ -1690,7 +1649,7 @@ export default function Home() {
 
                   <div className="bg-cyber-black/50 border-2 border-cyber-purple/30 rounded-lg p-4 hover:border-cyber-purple transition-all">
                     <h3 className="text-sm font-bold text-cyber-blue mb-3 flex items-center gap-2">
-                      <Coins className="w-4 h-4 animate-spin-slow" />
+                      <Coins className="w-4 h-4" />
                       ECONOMIA
                     </h3>
                     <div className="space-y-2">
@@ -1721,7 +1680,9 @@ export default function Home() {
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-gray-400">XP/min</span>
-                        <span className="text-cyber-green font-bold">{(character.xp / 100).toFixed(1)}</span>
+                        <span className="text-cyber-green font-bold">
+                          {character.xp ? (character.xp / 100).toFixed(1) : '0.0'}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-400">Gold/hora</span>
@@ -1748,7 +1709,7 @@ export default function Home() {
                   <div className="flex items-end justify-between h-32 gap-2">
                     {['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB', 'DOM'].map((day, i) => (
                       <div key={day} className="flex-1 flex flex-col items-center gap-2 group">
-                        <div 
+                        <div
                           className="w-full bg-gradient-to-t from-cyber-blue to-cyber-purple rounded-t-lg transition-all group-hover:opacity-80 group-hover:scale-105 cursor-pointer relative"
                           style={{ height: `${Math.random() * 80 + 20}px` }}
                         >
@@ -1766,7 +1727,7 @@ export default function Home() {
 
             {/* Shop e Inventory */}
             {showShop && (
-              <Shop 
+              <Shop
                 character={character}
                 setCharacter={setCharacter}
                 onBuy={handleBuyItem}
@@ -1792,20 +1753,20 @@ export default function Home() {
             </h4>
             <p className="text-xs text-gray-400">Complete todas as quests para ganhar bônus de 100 XP!</p>
           </div>
-          
+
           <div className="bg-cyber-dark/30 border-2 border-cyber-purple/30 rounded-lg p-3 backdrop-blur-sm hover:border-cyber-purple transition-all">
             <h4 className="text-xs font-bold mb-1 text-cyber-green flex items-center gap-1">
               <Trophy className="w-3 h-3 animate-bounce" />
               PRÓXIMO RANK
             </h4>
             <p className="text-xs text-gray-400">
-              {character.rank} → {character.rank === 'LENDÁRIO' ? 'MÁXIMO' : 
+              {character.rank} → {character.rank === 'LENDÁRIO' ? 'MÁXIMO' :
                 ['NOVATO', 'APRENDIZ', 'GUERREIRO', 'ELITE', 'MESTRE', 'LENDÁRIO'][
-                  ['NOVATO', 'APRENDIZ', 'GUERREIRO', 'ELITE', 'MESTRE', 'LENDÁRIO'].indexOf(character.rank) + 1
+                ['NOVATO', 'APRENDIZ', 'GUERREIRO', 'ELITE', 'MESTRE', 'LENDÁRIO'].indexOf(character.rank) + 1
                 ] || 'MÁXIMO'}
             </p>
           </div>
-          
+
           <div className="bg-cyber-dark/30 border-2 border-cyber-purple/30 rounded-lg p-3 backdrop-blur-sm hover:border-cyber-purple transition-all">
             <h4 className="text-xs font-bold mb-1 text-cyber-pink flex items-center gap-1">
               <Users2 className="w-3 h-3 animate-pulse" />
@@ -1837,7 +1798,7 @@ export default function Home() {
                 {forecast.map((day) => (
                   <div key={day.day} className="text-center">
                     <p className="text-[8px] text-gray-500">{day.day}</p>
-                    {day.icon}
+                    {getWeatherIcon(day.icon)}
                   </div>
                 ))}
               </div>
@@ -1865,23 +1826,3 @@ export default function Home() {
     </main>
   );
 }
-
-// Componentes auxiliares que precisam ser importados
-const Play = (props: any) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <polygon points="5 3 19 12 5 21 5 3" />
-  </svg>
-);
-
-const Square = (props: any) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <rect x="6" y="6" width="12" height="12" />
-  </svg>
-);
-
-const CheckCircle = (props: any) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-    <polyline points="22 4 12 14.01 9 11.01" />
-  </svg>
-);
